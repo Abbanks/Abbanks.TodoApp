@@ -1,0 +1,6 @@
+@Abbanks.ToDoApp.API_HostAddress = http://localhost:5194
+
+GET {{Abbanks.ToDoApp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

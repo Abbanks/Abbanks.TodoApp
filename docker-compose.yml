@@ -1,0 +1,64 @@
+version: '3.9'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: todoapp-api
+    ports:
+      - "5000:80"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=TodoDb;User=sa;Password=@EF45A!y$;TrustServerCertificate=True
+      - JwtSettings__Secret=20C742D5-2450-41FB-848E-6B56394A1520
+      - JwtSettings__ExpiryMinutes=60
+      - JwtSettings__Issuer=TodoApp
+      - JwtSettings__Audience=TodoAppClient
+    networks:
+      - todoapp-network
+    restart: unless-stopped
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: todoapp-tests
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=TodoDb;User=sa;Password=@EF45A!y$;TrustServerCertificate=True
+    depends_on:
+      - db
+    networks:
+      - todoapp-network
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: todoapp-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=@EF45A!y$
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - todoapp-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P @EF45A!y$ -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+    networks:
+      - todoapp-network
+    restart: unless-stopped
+
+networks:
+  todoapp-network:
+    driver: bridge
+volumes:
+  todoapp-data:
+    driver: local
