@@ -4,15 +4,15 @@ namespace Abbanks.TodoApp.Core.Entities
 {
     public class TodoItem
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime DueDate { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? CompletedAt { get; set; }
-        public TodoStatus Status { get; set; }
-        public Priority Priority { get; set; }
-        public int UserId { get; set; }
-        public User User { get; set; }
+        public TodoStatus Status { get; set; } = TodoStatus.NotStarted;
+        public Priority Priority { get; set; } = Priority.Medium;
+        public Guid UserId { get; set; }
+        public virtual User User { get; set; }
     }
 }
