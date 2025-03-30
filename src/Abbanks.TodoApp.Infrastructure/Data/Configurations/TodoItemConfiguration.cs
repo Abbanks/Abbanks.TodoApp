@@ -11,6 +11,8 @@ namespace Abbanks.TodoApp.Infrastructure.Data.Configurations
             builder.ToTable("TodoItems");
 
             builder.HasKey(t => t.Id);
+            builder.Property(t => t.Id)
+                .ValueGeneratedOnAdd();
 
             builder.Property(t => t.Title)
                 .IsRequired()

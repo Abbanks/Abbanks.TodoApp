@@ -11,6 +11,8 @@ namespace Abbanks.TodoApp.Infrastructure.Data.Configurations
             builder.ToTable("Users");
 
             builder.HasKey(u => u.Id);
+            builder.Property(u => u.Id)
+                .ValueGeneratedOnAdd();
 
             builder.Property(u => u.Username)
                 .IsRequired()
