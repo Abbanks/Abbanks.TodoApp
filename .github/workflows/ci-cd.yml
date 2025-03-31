@@ -48,11 +48,11 @@ jobs:
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.sources=.
+          -Dsonar.language=cs
           -Dsonar.scanner.scanAll=false
           -Dsonar.exclusions=**/obj/**,**/bin/**
           -Dsonar.coverage.exclusions=**/Program.cs,**/Startup.cs
           -Dsonar.branch.name=${{ github.ref_name }}
-          -Dsonar.verbose=true
     
     - name: Set up Docker Buildx
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
