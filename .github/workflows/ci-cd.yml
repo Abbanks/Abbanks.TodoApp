@@ -45,8 +45,8 @@ jobs:
       with:
         projectBaseDir: .
         args: >
-          -Dsonar.organization=abbanks
-          -Dsonar.projectKey=todoapp
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.sources=.
           -Dsonar.test.exclusions=**/obj/**,**/bin/**
           -Dsonar.coverage.exclusions=**/Program.cs,**/Startup.cs
