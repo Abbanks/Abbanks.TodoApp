@@ -38,10 +38,12 @@ jobs:
       run: dotnet test --no-build --configuration Release --verbosity normal
     
     - name: SonarCloud Scan
+      if: ${{ !env.SONAR_AUTO_ANALYSIS }}
       uses: sonarsource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_AUTO_ANALYSIS: false 
       with:
         projectBaseDir: .
         args: >
@@ -49,7 +51,7 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.sources=.
           -Dsonar.scanner.scanAll=false
-          -Dsonar.exclusions=**/obj/**,**/bin/**,**/*.cs
+          -Dsonar.exclusions=**/obj/**,**/bin/**
           -Dsonar.coverage.exclusions=**/Program.cs,**/Startup.cs
           -Dsonar.branch.name=${{ github.ref_name }}
           -Dsonar.branch.target=main
