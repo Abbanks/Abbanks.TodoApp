@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET_AUTH }}
     
     steps:
     - uses: actions/checkout@v4
@@ -28,6 +30,10 @@ jobs:
       id: gitversion
       uses: gittools/actions/gitversion/execute@v0
     
+    - name: Replace JWT secret in appsettings
+      run: |
+        sed -i 's/__JWT_SECRET__/'"$JWT_SECRET"'/g' src/Abbanks.TodoApp.API/appsettings.json
+    
     - name: Restore dependencies
       run: dotnet restore --configfile NuGet.config
     
@@ -37,6 +43,7 @@ jobs:
     - name: Run Unit Tests
       run: dotnet test --no-build --configuration Release --verbosity normal
     
+    # Rest of your workflow remains the same
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:

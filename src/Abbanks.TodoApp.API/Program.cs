@@ -29,7 +29,9 @@ builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
+var secret = jwtSettings["Secret"]
+    ?? Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? throw new InvalidOperationException("JWT Secret is not configured");
 
 var key = Encoding.UTF8.GetBytes(secret);
 
