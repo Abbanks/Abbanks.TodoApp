@@ -3,8 +3,10 @@ using Abbanks.TodoApp.Application.Extensions;
 using Abbanks.TodoApp.Application.Mappings;
 using Abbanks.TodoApp.Application.Services;
 using Abbanks.TodoApp.Application.Services.Implementations;
+using Abbanks.TodoApp.Core.Repositories;
 using Abbanks.TodoApp.Infrastructure;
 using Abbanks.TodoApp.Infrastructure.Data;
+using Abbanks.TodoApp.Infrastructure.Repositories;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,8 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secret = jwtSettings["Secret"]
