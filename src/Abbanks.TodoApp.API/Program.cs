@@ -28,8 +28,10 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JwtSettings")["Secret"] 
-          ?? throw new InvalidOperationException("JWT Secret is not configured properly."));
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JWT Secret is not configured");
+
+var key = Encoding.UTF8.GetBytes(secret);
 
 builder.Services.AddAuthentication(options =>
 {
