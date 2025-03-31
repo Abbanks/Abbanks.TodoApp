@@ -1,3 +1,4 @@
+using Abbanks.TodoApp.Application.Extensions;
 using Abbanks.TodoApp.Infrastructure;
 using Abbanks.TodoApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddApplicationValidation();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();

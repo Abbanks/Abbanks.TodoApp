@@ -20,7 +20,7 @@ namespace Abbanks.TodoApp.Infrastructure.Data.Configurations
 
             builder.Property(u => u.Email)
                 .IsRequired()
-                .HasMaxLength(50);
+                .HasMaxLength(100);
 
             builder.Property(u => u.PasswordHash)
                 .IsRequired();
