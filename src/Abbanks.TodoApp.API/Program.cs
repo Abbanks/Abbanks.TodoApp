@@ -1,4 +1,5 @@
 using Abbanks.TodoApp.Application.Extensions;
+using Abbanks.TodoApp.Application.Mappings;
 using Abbanks.TodoApp.Infrastructure;
 using Abbanks.TodoApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddApplicationValidation();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
