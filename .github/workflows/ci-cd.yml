@@ -49,10 +49,9 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.sources=.
           -Dsonar.scanner.scanAll=false
-          -Dsonar.exclusions=**/obj/**,**/bin/**,**/*.cs
+          -Dsonar.exclusions=**/obj/**,**/bin/**
           -Dsonar.coverage.exclusions=**/Program.cs,**/Startup.cs
           -Dsonar.branch.name=${{ github.ref_name }}
-          -Dsonar.branch.target=main
           -Dsonar.verbose=true
     
     - name: Set up Docker Buildx
