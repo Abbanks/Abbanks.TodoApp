@@ -1,4 +1,5 @@
 ﻿using Abbanks.TodoApp.Application.DTOs;
+using Abbanks.TodoApp.Core.Repositories;
 using FluentValidation;
 
 namespace Abbanks.TodoApp.Application.Validators
