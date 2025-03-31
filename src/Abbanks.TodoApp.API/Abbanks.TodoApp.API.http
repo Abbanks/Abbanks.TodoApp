@@ -1,6 +1,32 @@
 @Abbanks.ToDoApp.API_HostAddress = http://localhost:5194
 
-GET {{Abbanks.ToDoApp.API_HostAddress}}/weatherforecast/
+### Get all todos tasks
+GET {{Abbanks.ToDoApp.API_HostAddress}}/api/todos
 Accept: application/json
+Authorization: Bearer {{token}}
 
-###
+### Get a specific todo task
+GET {{Abbanks.ToDoApp.API_HostAddress}}/api/todos/{{todoId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Create a new todo task
+POST {{Abbanks.ToDoApp.API_HostAddress}}/api/todos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "Test Todo",
+  "description": "This is a test",
+  "dueDate": "2025-04-15T00:00:00Z",
+  "priority": 1
+}
+
+### User login
+POST {{Abbanks.ToDoApp.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "Password123!"
+}
