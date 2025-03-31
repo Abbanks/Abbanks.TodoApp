@@ -12,8 +12,8 @@ services:
       - db
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=TodoDb;User=sa;Password=@EF45A!y$;TrustServerCertificate=True
-      - JwtSettings__Secret=20C742D5-2450-41FB-848E-6B56394A1520
+      - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
+      - JwtSettings__Secret=${JWT_SECRET}
       - JwtSettings__ExpiryMinutes=60
       - JwtSettings__Issuer=TodoApp
       - JwtSettings__Audience=TodoAppClient
@@ -29,7 +29,7 @@ services:
     container_name: todoapp-tests
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=TodoDb;User=sa;Password=@EF45A!y$;TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=${CONNECTION_STRING}
     depends_on:
       - db
     networks:
@@ -40,14 +40,14 @@ services:
     container_name: todoapp-db
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=@EF45A!y$
+      - SA_PASSWORD=${DB_PASSWORD}
       - MSSQL_PID=Express
     ports:
       - "1433:1433"
     volumes:
       - todoapp-data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P @EF45A!y$ -Q 'SELECT 1' || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $${SA_PASSWORD} -Q 'SELECT 1' || exit 1"]
       interval: 10s
       retries: 5
       start_period: 10s
@@ -59,6 +59,7 @@ services:
 networks:
   todoapp-network:
     driver: bridge
+
 volumes:
   todoapp-data:
     driver: local
