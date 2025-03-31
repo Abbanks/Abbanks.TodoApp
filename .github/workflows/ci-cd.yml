@@ -38,7 +38,7 @@ jobs:
       run: dotnet test --no-build --configuration Release --verbosity normal
     
     - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
+      uses: sonarsource/sonarcloud-github-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -48,8 +48,9 @@ jobs:
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.sources=.
-          -Dsonar.test.exclusions=**/obj/**,**/bin/**
+          -Dsonar.exclusions=**/obj/**,**/bin/**
           -Dsonar.coverage.exclusions=**/Program.cs,**/Startup.cs
+          -Dsonar.verbose=true
     
     - name: Set up Docker Buildx
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
