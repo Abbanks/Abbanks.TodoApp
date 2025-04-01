@@ -126,7 +126,7 @@ if (app.Environment.IsDevelopment())
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
             context.Database.Migrate();
-            //await SeedData.InitializeAsync(context);
+            await SeedData.InitializeAsync(context);
         }
         catch (Exception ex)
         {
