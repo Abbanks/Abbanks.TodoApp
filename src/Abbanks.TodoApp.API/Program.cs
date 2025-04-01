@@ -6,6 +6,7 @@ using Abbanks.TodoApp.Application.Services.Implementations;
 using Abbanks.TodoApp.Core.Repositories;
 using Abbanks.TodoApp.Infrastructure;
 using Abbanks.TodoApp.Infrastructure.Data;
+using Abbanks.TodoApp.Infrastructure.Data.Seeding;
 using Abbanks.TodoApp.Infrastructure.Repositories;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
