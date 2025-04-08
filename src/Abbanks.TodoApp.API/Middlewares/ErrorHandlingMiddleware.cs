@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 namespace Abbanks.TodoApp.API.Middleware
@@ -15,9 +14,9 @@ namespace Abbanks.TodoApp.API.Middleware
             ILogger<ErrorHandlingMiddleware> logger,
             IHostEnvironment environment)
         {
-            _next = next ?? throw new ArgumentNullException(nameof(next));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _environment = environment ?? throw new ArgumentNullException(nameof(environment));
+            _next = next;
+            _logger = logger;
+            _environment = environment;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -28,70 +27,50 @@ namespace Abbanks.TodoApp.API.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
+                _logger.LogError(ex, "Unhandled exception");
                 await HandleExceptionAsync(context, ex);
             }
         }
 
         private Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            var code = HttpStatusCode.InternalServerError;
+            var statusCode = HttpStatusCode.InternalServerError;
+            var message = "An unexpected error occurred.";
 
-            code = exception switch
+            if (exception is KeyNotFoundException)
             {
-                KeyNotFoundException => HttpStatusCode.NotFound,
-                UnauthorizedAccessException => HttpStatusCode.Forbidden,
-                ArgumentException => HttpStatusCode.BadRequest,
-                ValidationException => HttpStatusCode.BadRequest,
-                _ => code
-            };
-
-            object response;
-            if (_environment.IsDevelopment())
-            {
-                response = new
-                {
-                    status = (int)code,
-                    error = exception.GetType().Name,
-                    message = exception.Message,
-                    stackTrace = exception.StackTrace
-                };
+                statusCode = HttpStatusCode.NotFound;
+                message = "The requested resource was not found.";
             }
-            else
+            else if (exception is UnauthorizedAccessException)
             {
-                response = new
-                {
-                    status = (int)code,
-                    error = GetErrorMessage(code)
-                };
+                statusCode = HttpStatusCode.Forbidden;
+                message = "You don't have permission to access this resource.";
             }
-
-            var jsonOptions = new JsonSerializerOptions
+            else if (exception is ArgumentException)
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = false
-            };
-
-            var result = JsonSerializer.Serialize(response, jsonOptions);
+                statusCode = HttpStatusCode.BadRequest;
+                message = exception.Message;
+            }
 
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)code;
+            context.Response.StatusCode = (int)statusCode;
 
-            return context.Response.WriteAsync(result);
-        }
-
-        private string GetErrorMessage(HttpStatusCode code)
-        {
-            return code switch
+            // Only include error details in development
+            var response = _environment.IsDevelopment() ? (object)new
             {
-                HttpStatusCode.NotFound => "The requested resource was not found.",
-                HttpStatusCode.BadRequest => "The request was invalid.",
-                HttpStatusCode.Forbidden => "You don't have permission to access this resource.",
-                HttpStatusCode.Unauthorized => "Authentication is required.",
-                _ => "An unexpected error occurred. Please try again later."
-            };
+                message = exception.Message,
+                details = exception.StackTrace
+            }
+            : new { message };
+
+            return context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }));
         }
     }
+
     public static class ErrorHandlingMiddlewareExtensions
     {
         public static IApplicationBuilder UseErrorHandling(this IApplicationBuilder builder)

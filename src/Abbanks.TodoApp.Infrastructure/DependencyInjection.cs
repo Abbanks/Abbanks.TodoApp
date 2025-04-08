@@ -1,4 +1,7 @@
-﻿using Abbanks.TodoApp.Infrastructure.Data;
+﻿using Abbanks.TodoApp.Application.Settings;
+using Abbanks.TodoApp.Core.Repositories;
+using Abbanks.TodoApp.Infrastructure.Data;
+using Abbanks.TodoApp.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +16,11 @@ namespace Abbanks.TodoApp.Infrastructure
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ITodoRepository, TodoRepository>();
+
+            services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
             return services;
         }

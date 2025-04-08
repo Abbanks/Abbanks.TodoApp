@@ -1,7 +1,8 @@
 ﻿using Abbanks.TodoApp.Core.Entities;
 using Abbanks.TodoApp.Core.Enums;
+using Abbanks.TodoApp.Infrastructure.Data;
 
-namespace Abbanks.TodoApp.Infrastructure.Data.Seeding
+namespace Abbanks.TodoApp.Infrastructure
 {
     public static class SeedData
     {

@@ -1,14 +1,8 @@
 using Abbanks.TodoApp.API.Middleware;
-using Abbanks.TodoApp.Application.Extensions;
-using Abbanks.TodoApp.Application.Mappings;
-using Abbanks.TodoApp.Application.Services;
-using Abbanks.TodoApp.Application.Services.Implementations;
-using Abbanks.TodoApp.Core.Repositories;
+using Abbanks.TodoApp.Application;
+using Abbanks.TodoApp.Application.Settings;
 using Abbanks.TodoApp.Infrastructure;
 using Abbanks.TodoApp.Infrastructure.Data;
-using Abbanks.TodoApp.Infrastructure.Data.Seeding;
-using Abbanks.TodoApp.Infrastructure.Repositories;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,27 +12,30 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication(builder.Configuration);
+
 builder.Services.AddControllers();
 
-builder.Services.AddApplicationValidation();
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Secret))
+{
+    var secretFromEnv = Environment.GetEnvironmentVariable("JWT_SECRET");
+    if (string.IsNullOrEmpty(secretFromEnv))
+    {
+        throw new InvalidOperationException("JWT Secret is not configured in either appsettings.json or environment variables");
+    }
 
-builder.Services.AddFluentValidationAutoValidation();
+    jwtSettings = new JwtSettings
+    {
+        Secret = secretFromEnv,
+        Issuer = jwtSettings?.Issuer ?? "Abbanks.TodoApp",
+        Audience = jwtSettings?.Audience ?? "TodoAppUsers",
+        ExpirationDays = jwtSettings?.ExpirationDays ?? 5
+    };
+}
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-builder.Services.AddInfrastructure(builder.Configuration);
-
-builder.Services.AddScoped<ITodoService, TodoService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ITodoRepository, TodoRepository>();
-
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secret = jwtSettings["Secret"]
-    ?? Environment.GetEnvironmentVariable("JWT_SECRET")
-    ?? throw new InvalidOperationException("JWT Secret is not configured");
-
-var key = Encoding.UTF8.GetBytes(secret);
+var key = Encoding.ASCII.GetBytes(jwtSettings.Secret);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -47,7 +44,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false; // Set to true in production
+    options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -55,10 +52,21 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
         ClockSkew = TimeSpan.Zero
     };
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DefaultPolicy", builder =>
+    {
+        builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -71,7 +79,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "A RESTful API for managing todo items with user authentication",
         Contact = new OpenApiContact
         {
-            Name = "Abigail Olubanke Eboda",
             Email = "olubanke.eboda@gmail.com"
         }
     });
@@ -96,7 +103,7 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            Array.Empty<string>()
+            new string[] {}
         }
     });
 
@@ -140,6 +147,7 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
+app.UseCors("DefaultPolicy");
 app.UseRouting();
 
 app.UseAuthentication();

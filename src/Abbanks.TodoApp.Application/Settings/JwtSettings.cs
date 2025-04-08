@@ -4,7 +4,7 @@
     {
         public required string Issuer { get; set; }
         public required string Audience { get; set; }
-        public int ExpiryMinutes { get; set; }
+        public int ExpirationDays { get; set; }
         public string Secret { get; set; } = string.Empty;
     }
 }
