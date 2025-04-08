@@ -56,6 +56,21 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings.Audience,
         ClockSkew = TimeSpan.Zero
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogError("Authentication failed: {Exception}", context.Exception);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Token validated successfully!");
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddCors(options =>
